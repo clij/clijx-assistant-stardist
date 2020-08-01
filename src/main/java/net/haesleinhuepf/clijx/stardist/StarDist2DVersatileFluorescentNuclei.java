@@ -1,59 +1,73 @@
-package net.haesleinhuepf.stardist;
+package net.haesleinhuepf.clijx.stardist;
 
 
 import ij.IJ;
-import ij.ImageJ;
 import ij.ImagePlus;
-import net.haesleinhuepf.clij.CLIJ;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
-import net.haesleinhuepf.clij.macro.AbstractCLIJPlugin;
 import net.haesleinhuepf.clij.macro.CLIJMacroPlugin;
 import net.haesleinhuepf.clij.macro.CLIJOpenCLProcessor;
 import net.haesleinhuepf.clij.macro.documentation.OffersDocumentation;
 import net.haesleinhuepf.clij2.AbstractCLIJ2Plugin;
 import net.haesleinhuepf.clij2.CLIJ2;
-import net.haesleinhuepf.clijx.gui.ContinuousWebcamAcquisition;
-import net.haesleinhuepf.clijx.plugins.Extrema;
+import net.haesleinhuepf.clij2.utilities.IsCategorized;
 import net.imagej.Dataset;
 import net.imagej.DefaultDataset;
 import net.imagej.ImgPlus;
-import net.imagej.patcher.LegacyInjector;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import org.scijava.Context;
 import org.scijava.command.CommandModule;
 import org.scijava.command.CommandService;
 import org.scijava.plugin.Plugin;
 
-import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-@Plugin(type = CLIJMacroPlugin.class, name = "STARDIST_starDist2DVersatileFluorescentNuclei")
-public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation {
+@Plugin(type = CLIJMacroPlugin.class, name = "CLIJx_starDist2DVersatileFluorescentNuclei")
+public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation, IsCategorized
+{
+
+    public StarDist2DVersatileFluorescentNuclei() {
+        super();
+
+        System.out.println("Init star dist");
+    }
 
     @Override
     public String getParameterHelpText() {
         return "Image input, ByRef Image destination";
     }
 
+    /*
     @Override
     public Object[] getDefaultValues() {
         return new Object[]{};
     }
-
+    */
 
     @Override
     public boolean executeCL() {
+        System.out.println("Exec star dist");
         boolean result = starDist2DVersatileFluorescentNuclei(getCLIJ2(), (ClearCLBuffer) (args[0]), (ClearCLBuffer) (args[1]));
         return result;
     }
 
     public static boolean starDist2DVersatileFluorescentNuclei(CLIJ2 clij2, ClearCLBuffer input1, ClearCLBuffer output) {
+
+        try {
+            de.csbdresden.stardist.StarDist2D.class.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            IJ.log("Failed to initialize StartDist2D.\n" +
+                    "Please check if the 'CSBDeep' and 'StarDist' update sites are activated.");
+        }
+/*
         ImagePlus input = clij2.pull(input1);
 
+        System.out.println("Make context");
         Context context = new Context();
         CommandService command = context.getService(CommandService.class);
         Dataset dataset = new DefaultDataset(context, new ImgPlus<>(ImageJFunctions.convertFloat(input)));
+        System.out.println("Made context");
 
         FutureTask res = (FutureTask) command.run(de.csbdresden.stardist.StarDist2D.class, false,
                 "input", dataset,
@@ -75,20 +89,24 @@ public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin im
             e.printStackTrace();
         }
         //IJ.log(res.getClass().getName());
-
+*/
+        System.out.println("Done.");
 
         return true;
     }
 
     @Override
     public String getDescription() {
-        return "Apply StarDist to an image.";
+        return "Apply StarDist 2D 'Versatile (Fluorescent Nuclei)' to an image to create a label map.";
     }
 
     @Override
     public String getAvailableForDimensions() {
-        return "2D, 3D";
+        return "2D";
     }
+
+
+
 
     public static void main(String[] args) {
         new net.imagej.ImageJ().ui().showUI();
@@ -104,4 +122,8 @@ public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin im
         clij2.show(output, "output");
     }
 
+    @Override
+    public String getCategories() {
+        return "Labeling";
+    }
 }
