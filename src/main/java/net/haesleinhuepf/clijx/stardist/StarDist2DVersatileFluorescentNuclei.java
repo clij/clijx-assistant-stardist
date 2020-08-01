@@ -12,6 +12,7 @@ import net.haesleinhuepf.clij2.CLIJ2;
 import net.haesleinhuepf.clij2.utilities.IsCategorized;
 import net.imagej.Dataset;
 import net.imagej.DefaultDataset;
+import net.imagej.ImageJ;
 import net.imagej.ImgPlus;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import org.scijava.Context;
@@ -25,6 +26,7 @@ import java.util.concurrent.FutureTask;
 @Plugin(type = CLIJMacroPlugin.class, name = "CLIJx_starDist2DVersatileFluorescentNuclei")
 public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation, IsCategorized
 {
+    private static ImageJ ij = null;
 
     public StarDist2DVersatileFluorescentNuclei() {
         super();
@@ -60,11 +62,16 @@ public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin im
             IJ.log("Failed to initialize StartDist2D.\n" +
                     "Please check if the 'CSBDeep' and 'StarDist' update sites are activated.");
         }
-/*
+
         ImagePlus input = clij2.pull(input1);
 
+        if (ij == null) {
+            ij = new ImageJ();
+        }
+
+
         System.out.println("Make context");
-        Context context = new Context();
+        Context context = ij.context();//new Context();
         CommandService command = context.getService(CommandService.class);
         Dataset dataset = new DefaultDataset(context, new ImgPlus<>(ImageJFunctions.convertFloat(input)));
         System.out.println("Made context");
@@ -89,7 +96,7 @@ public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin im
             e.printStackTrace();
         }
         //IJ.log(res.getClass().getName());
-*/
+
         System.out.println("Done.");
 
         return true;
