@@ -26,7 +26,13 @@ import java.util.concurrent.FutureTask;
 @Plugin(type = CLIJMacroPlugin.class, name = "CLIJx_starDist2DVersatileFluorescentNuclei")
 public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin implements CLIJMacroPlugin, CLIJOpenCLProcessor, OffersDocumentation, IsCategorized
 {
-    private static ImageJ ij = null;
+    private static CommandService cmdService;
+    private static Context ctx;
+    static {
+        ctx = (Context) IJ.runPlugIn("org.scijava.Context", "");
+        if (ctx == null) ctx = new Context(CommandService.class);
+        cmdService = ctx.service(CommandService.class);
+    }
 
     public StarDist2DVersatileFluorescentNuclei() {
         super();
@@ -65,18 +71,10 @@ public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin im
 
         ImagePlus input = clij2.pull(input1);
 
-        if (ij == null) {
-            ij = new ImageJ();
-        }
-
-
-        System.out.println("Make context");
-        Context context = ij.context();//new Context();
-        CommandService command = context.getService(CommandService.class);
-        Dataset dataset = new DefaultDataset(context, new ImgPlus<>(ImageJFunctions.convertFloat(input)));
+        Dataset dataset = new DefaultDataset(ctx, new ImgPlus<>(ImageJFunctions.convertFloat(input)));
         System.out.println("Made context");
 
-        FutureTask res = (FutureTask) command.run(de.csbdresden.stardist.StarDist2D.class, false,
+        FutureTask res = (FutureTask) cmdService.run(de.csbdresden.stardist.StarDist2D.class, false,
                 "input", dataset,
                 "modelChoice", "Versatile (fluorescent nuclei)"
                 );
@@ -116,7 +114,8 @@ public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin im
 
 
     public static void main(String[] args) {
-        new net.imagej.ImageJ().ui().showUI();
+        new ImageJ();
+        //new net.imagej.ImageJ().ui().showUI();
         ImagePlus imp = IJ.openImage("C:/structure/data/blobs.tif");
 
         CLIJ2 clij2 = CLIJ2.getInstance();
