@@ -1,6 +1,8 @@
 package net.haesleinhuepf.clijx.stardist;
 
 
+import de.csbdresden.stardist.Opt;
+import de.csbdresden.stardist.StarDist2D;
 import ij.IJ;
 import ij.ImagePlus;
 import net.haesleinhuepf.clij.clearcl.ClearCLBuffer;
@@ -29,7 +31,10 @@ public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin im
     private static CommandService cmdService;
     private static Context ctx;
     static {
-        ctx = (Context) IJ.runPlugIn("org.scijava.Context", "");
+        try {
+            ctx = (Context) IJ.runPlugIn("org.scijava.Context", "");
+        } catch (ExceptionInInitializerError e ) {
+        }
         if (ctx == null) ctx = new Context(CommandService.class);
         cmdService = ctx.service(CommandService.class);
     }
@@ -76,7 +81,8 @@ public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin im
 
         FutureTask res = (FutureTask) cmdService.run(de.csbdresden.stardist.StarDist2D.class, false,
                 "input", dataset,
-                "modelChoice", "Versatile (fluorescent nuclei)"
+                "modelChoice", "Versatile (fluorescent nuclei)",
+                "outputType", "Label Image"
                 );
 
         try {
@@ -109,9 +115,6 @@ public class StarDist2DVersatileFluorescentNuclei extends AbstractCLIJ2Plugin im
     public String getAvailableForDimensions() {
         return "2D";
     }
-
-
-
 
     public static void main(String[] args) {
         new ImageJ();
